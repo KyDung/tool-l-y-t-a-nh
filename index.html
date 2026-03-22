@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tool OpenGL PRO+</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        font-family: "Inter";
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(135deg, #eef2ff, #f9fafb);
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: auto;
+      }
+
+      .card {
+        background: white;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      button {
+        border: none;
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        color: white;
+      }
+
+      .blue {
+        background: #3b82f6;
+      }
+      .green {
+        background: #10b981;
+      }
+      .red {
+        background: #ef4444;
+      }
+      .gray {
+        background: #6b7280;
+      }
+
+      input {
+        width: 70px;
+        padding: 5px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+      }
+
+      #wrapper {
+        position: relative;
+        width: 600px;
+        height: 500px;
+        margin: auto;
+        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      canvas {
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+
+      textarea {
+        width: 100%;
+        height: 180px;
+        border-radius: 10px;
+        padding: 10px;
+      }
+
+      /* ===== IMAGE LIST ===== */
+      #imageList {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+
+      .thumb {
+        width: 80px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 2px solid transparent;
+      }
+
+      .thumb.active {
+        border: 2px solid #3b82f6;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="card">
+        <h3>🎯 Tool OpenGL PRO+ (Multi Image)</h3>
+
+        <div class="toolbar">
+          <input type="file" id="fileInput" multiple />
+          <button class="gray" onclick="undo()">Undo</button>
+          <button class="red" onclick="clearAll()">Clear</button>
+          <button class="green" onclick="copy()">Copy</button>
+        </div>
+
+        <div id="imageList"></div>
+
+        <hr />
+
+        <b>Điều chỉnh:</b><br /><br />
+
+        offsetX: <input id="oxInput" type="number" value="0" /> offsetY:
+        <input id="oyInput" type="number" value="0" /> scale:
+        <input id="scaleInput" type="number" step="0.1" value="1" />
+
+        <button class="blue" onclick="applyManual()">Apply</button>
+        <button class="red" onclick="resetView()">Reset</button>
+      </div>
+
+      <div class="card">
+        <div id="wrapper">
+          <canvas id="bgCanvas" width="600" height="500"></canvas>
+          <canvas id="overlay" width="600" height="500"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <textarea id="output"></textarea>
+      </div>
+    </div>
+
+    <script>
+      const W = 600,
+        H = 500;
+
+      const ctxBg = document.getElementById("bgCanvas").getContext("2d");
+      const overlay = document.getElementById("overlay");
+      const ctx = overlay.getContext("2d");
+      const output = document.getElementById("output");
+
+      let images = []; // list ảnh
+      let currentIndex = -1;
+
+      let img = new Image();
+      let points = [];
+
+      let offsetX = 0,
+        offsetY = 0,
+        scale = 1;
+
+      // ================= LOAD MULTI =================
+      document.getElementById("fileInput").addEventListener("change", (e) => {
+        let files = e.target.files;
+
+        for (let f of files) {
+          let reader = new FileReader();
+
+          reader.onload = (ev) => {
+            images.push(ev.target.result);
+            renderImageList();
+
+            if (currentIndex == -1) {
+              switchImage(0);
+            }
+          };
+
+          reader.readAsDataURL(f);
+        }
+      });
+
+      // ================= IMAGE LIST =================
+      function renderImageList() {
+        let container = document.getElementById("imageList");
+        container.innerHTML = "";
+
+        images.forEach((src, i) => {
+          let imgEl = document.createElement("img");
+          imgEl.src = src;
+          imgEl.className = "thumb" + (i === currentIndex ? " active" : "");
+
+          imgEl.onclick = () => switchImage(i);
+
+          container.appendChild(imgEl);
+        });
+      }
+
+      function switchImage(i) {
+        currentIndex = i;
+        img.src = images[i];
+
+        img.onload = () => {
+          resetView();
+          drawImage();
+        };
+
+        renderImageList();
+      }
+
+      // ================= DRAW =================
+      function drawImage() {
+        ctxBg.clearRect(0, 0, W, H);
+
+        if (img.complete) {
+          ctxBg.save();
+          ctxBg.translate(offsetX, offsetY);
+          ctxBg.scale(scale, scale);
+          ctxBg.drawImage(img, 0, 0);
+          ctxBg.restore();
+        }
+      }
+
+      function drawPoints() {
+        ctx.clearRect(0, 0, W, H);
+
+        ctx.fillStyle = "red";
+
+        for (let p of points) {
+          ctx.beginPath();
+          ctx.arc(p.screenX, p.screenY, 4, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillText(`(${p.x},${p.y})`, p.screenX + 5, p.screenY - 5);
+        }
+      }
+
+      // ================= OUTPUT =================
+      function updateOutput() {
+        let txt = "";
+        for (let p of points) {
+          txt += `glVertex2f(${p.x}, ${p.y});\n`;
+        }
+        output.value = txt;
+      }
+
+      // ================= CONVERT =================
+      function convert(sx, sy) {
+        let imgX = (sx - offsetX) / scale;
+        let imgY = (sy - offsetY) / scale;
+
+        return {
+          x: Math.round(imgX - W / 2),
+          y: Math.round(H / 2 - imgY),
+        };
+      }
+
+      // ================= CLICK =================
+      overlay.addEventListener("click", (e) => {
+        const rect = overlay.getBoundingClientRect();
+
+        let sx = e.clientX - rect.left;
+        let sy = e.clientY - rect.top;
+
+        let w = convert(sx, sy);
+
+        points.push({ screenX: sx, screenY: sy, x: w.x, y: w.y });
+
+        drawPoints();
+        updateOutput();
+      });
+
+      // ================= CONTROL =================
+      function applyManual() {
+        offsetX = parseFloat(oxInput.value) || 0;
+        offsetY = parseFloat(oyInput.value) || 0;
+        scale = parseFloat(scaleInput.value) || 1;
+
+        drawImage();
+        drawPoints();
+      }
+
+      function resetView() {
+        offsetX = 0;
+        offsetY = 0;
+        scale = 1;
+
+        oxInput.value = 0;
+        oyInput.value = 0;
+        scaleInput.value = 1;
+
+        drawImage();
+        drawPoints();
+      }
+
+      // ================= BUTTON =================
+      function undo() {
+        points.pop();
+        drawPoints();
+        updateOutput();
+      }
+
+      function clearAll() {
+        points = [];
+        drawPoints();
+        updateOutput();
+      }
+
+      function copy() {
+        output.select();
+        document.execCommand("copy");
+        alert("Copied!");
+      }
+    </script>
+  </body>
+</html>
