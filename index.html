@@ -2,7 +2,7 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <title>Tool OpenGL PRO+</title>
+    <title>Tool OpenGL PRO+ (Fixed Mapping chuẩn)</title>
 
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"
@@ -11,44 +11,66 @@
 
     <style>
       * {
-        font-family: "Inter";
+        font-family: "Inter", sans-serif;
         box-sizing: border-box;
       }
 
       body {
-        background: linear-gradient(135deg, #eef2ff, #f9fafb);
+        margin: 0;
         padding: 20px;
+        background: linear-gradient(135deg, #eef2ff, #f8fafc);
+        color: #1f2937;
       }
 
       .container {
-        max-width: 1000px;
+        max-width: 1100px;
         margin: auto;
       }
 
       .card {
-        background: white;
-        padding: 15px;
-        border-radius: 12px;
-        margin-bottom: 15px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        background: #fff;
+        border-radius: 16px;
+        padding: 18px;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
       }
 
-      .toolbar {
+      h3 {
+        margin: 0 0 12px 0;
+      }
+
+      .toolbar,
+      .control-row,
+      .arrow-wrap {
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .control-block {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid #e5e7eb;
       }
 
       button {
         border: none;
-        padding: 8px 12px;
-        border-radius: 8px;
+        padding: 9px 14px;
+        border-radius: 10px;
         cursor: pointer;
-        color: white;
+        color: #fff;
+        font-weight: 600;
+        transition: 0.18s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        opacity: 0.95;
       }
 
       .blue {
-        background: #3b82f6;
+        background: #2563eb;
       }
       .green {
         background: #10b981;
@@ -59,12 +81,36 @@
       .gray {
         background: #6b7280;
       }
+      .indigo {
+        background: #4f46e5;
+      }
 
-      input {
-        width: 70px;
-        padding: 5px;
-        border-radius: 6px;
-        border: 1px solid #ddd;
+      input[type="number"] {
+        width: 90px;
+        padding: 8px 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        outline: none;
+        background: #fff;
+      }
+
+      input[type="file"] {
+        max-width: 240px;
+      }
+
+      label.small {
+        font-size: 14px;
+        color: #374151;
+        font-weight: 600;
+      }
+
+      .info-box {
+        margin-top: 12px;
+        padding: 10px 12px;
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 14px;
       }
 
       #wrapper {
@@ -73,8 +119,9 @@
         height: 500px;
         margin: auto;
         overflow: hidden;
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        border-radius: 14px;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+        background: #f3f4f6;
       }
 
       canvas {
@@ -85,30 +132,74 @@
 
       textarea {
         width: 100%;
-        height: 180px;
-        border-radius: 10px;
-        padding: 10px;
+        height: 220px;
+        border-radius: 12px;
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        resize: vertical;
+        font-family: Consolas, monospace;
+        font-size: 14px;
+        background: #f9fafb;
       }
 
-      /* ===== IMAGE LIST ===== */
       #imageList {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
-        margin-top: 10px;
+        margin-top: 12px;
       }
 
       .thumb {
-        width: 80px;
-        height: 60px;
+        width: 88px;
+        height: 64px;
         object-fit: cover;
-        border-radius: 8px;
+        border-radius: 10px;
         cursor: pointer;
-        border: 2px solid transparent;
+        border: 3px solid transparent;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
       }
 
       .thumb.active {
-        border: 2px solid #3b82f6;
+        border-color: #2563eb;
+      }
+
+      .arrow-panel {
+        display: inline-flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px;
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+      }
+
+      .arrow-middle {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .status {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-top: 10px;
+        font-size: 14px;
+      }
+
+      .badge {
+        background: #eef2ff;
+        color: #3730a3;
+        border: 1px solid #c7d2fe;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-weight: 600;
+      }
+
+      .note {
+        font-size: 13px;
+        color: #6b7280;
+        margin-top: 8px;
       }
     </style>
   </head>
@@ -116,198 +207,273 @@
   <body>
     <div class="container">
       <div class="card">
-        <h3>🎯 Tool OpenGL PRO+ (Multi Image)</h3>
+        <h3>🎯 Tool OpenGL PRO+ (Multi Image + Mapping chuẩn)</h3>
 
         <div class="toolbar">
-          <input type="file" id="fileInput" multiple />
+          <input type="file" id="fileInput" accept="image/*" multiple />
           <button class="gray" onclick="undo()">Undo</button>
           <button class="red" onclick="clearAll()">Clear</button>
-          <button class="green" onclick="copy()">Copy</button>
+          <button class="green" onclick="copyOutput()">Copy</button>
         </div>
 
         <div id="imageList"></div>
 
-        <hr />
+        <div class="control-block">
+          <div class="control-row">
+            <label class="small">offsetX</label>
+            <input id="oxInput" type="number" value="0" />
 
-        <b>Điều chỉnh:</b><br /><br />
+            <label class="small">offsetY</label>
+            <input id="oyInput" type="number" value="0" />
 
-        offsetX: <input id="oxInput" type="number" value="0" /> offsetY:
-        <input id="oyInput" type="number" value="0" /> scale:
-        <input id="scaleInput" type="number" step="0.1" value="1" />
+            <label class="small">scale</label>
+            <input id="scaleInput" type="number" step="0.01" value="1" />
 
-        <button class="blue" onclick="applyManual()">Apply</button>
-        <button class="red" onclick="resetView()">Reset</button>
+            <button class="blue" onclick="applyManual()">Apply</button>
+            <button class="red" onclick="resetView()">Reset View</button>
+          </div>
+
+          <div class="control-row" style="margin-top: 12px">
+            <label class="small">left</label>
+            <input id="leftInput" type="number" value="-250" />
+
+            <label class="small">right</label>
+            <input id="rightInput" type="number" value="250" />
+
+            <label class="small">bottom</label>
+            <input id="bottomInput" type="number" value="-350" />
+
+            <label class="small">top</label>
+            <input id="topInput" type="number" value="350" />
+          </div>
+
+          <div class="arrow-wrap" style="margin-top: 14px">
+            <div>
+              <div class="control-row" style="margin-bottom: 10px">
+                <label class="small">Step dịch</label>
+                <input id="stepInput" type="number" value="20" />
+              </div>
+
+              <div class="arrow-panel">
+                <div style="text-align: center">
+                  <button class="indigo" onclick="move(0, -1)">↑</button>
+                </div>
+                <div class="arrow-middle">
+                  <button class="indigo" onclick="move(-1, 0)">←</button>
+                  <button class="indigo" onclick="move(1, 0)">→</button>
+                </div>
+                <div style="text-align: center">
+                  <button class="indigo" onclick="move(0, 1)">↓</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="status">
+            <span class="badge">offsetX: <span id="oxText">0</span></span>
+            <span class="badge">offsetY: <span id="oyText">0</span></span>
+            <span class="badge">scale: <span id="scaleText">1.00</span></span>
+            <span class="badge">Số điểm: <span id="pointCount">0</span></span>
+          </div>
+
+          <div class="info-box">
+            Tool này map trực tiếp từ vị trí click trên canvas sang hệ OpenGL.
+            Ảnh nền chỉ để canh nên dịch/zoom ảnh sẽ không làm sai tọa độ.
+          </div>
+
+          <div class="note">
+            Mặc định đang để X: -250 → 250, Y: -350 → 350. Nếu bài OpenGL của
+            bạn khác, chỉ cần sửa 4 ô left/right/bottom/top.
+          </div>
+        </div>
       </div>
 
       <div class="card">
         <div id="wrapper">
           <canvas id="bgCanvas" width="600" height="500"></canvas>
-          <canvas id="overlay" width="600" height="500"></canvas>
+          <canvas id="overlayCanvas" width="600" height="500"></canvas>
         </div>
       </div>
 
       <div class="card">
-        <textarea id="output"></textarea>
+        <textarea id="output" readonly></textarea>
       </div>
     </div>
 
     <script>
-      const W = 600,
-        H = 500;
+      const bgCanvas = document.getElementById("bgCanvas");
+      const ctxBg = bgCanvas.getContext("2d");
 
-      const ctxBg = document.getElementById("bgCanvas").getContext("2d");
-      const overlay = document.getElementById("overlay");
-      const ctx = overlay.getContext("2d");
+      const overlayCanvas = document.getElementById("overlayCanvas");
+      const ctx = overlayCanvas.getContext("2d");
+
       const output = document.getElementById("output");
+      const fileInput = document.getElementById("fileInput");
+      const imageList = document.getElementById("imageList");
 
-      let images = []; // list ảnh
+      const oxInput = document.getElementById("oxInput");
+      const oyInput = document.getElementById("oyInput");
+      const scaleInput = document.getElementById("scaleInput");
+      const stepInput = document.getElementById("stepInput");
+
+      const leftInput = document.getElementById("leftInput");
+      const rightInput = document.getElementById("rightInput");
+      const bottomInput = document.getElementById("bottomInput");
+      const topInput = document.getElementById("topInput");
+
+      let images = [];
       let currentIndex = -1;
-
       let img = new Image();
+
       let points = [];
 
-      let offsetX = 0,
-        offsetY = 0,
-        scale = 1;
+      let offsetX = 0;
+      let offsetY = 0;
+      let scale = 1;
 
-      // ================= LOAD MULTI =================
-      document.getElementById("fileInput").addEventListener("change", (e) => {
-        let files = e.target.files;
-
-        for (let f of files) {
-          let reader = new FileReader();
-
-          reader.onload = (ev) => {
-            images.push(ev.target.result);
-            renderImageList();
-
-            if (currentIndex == -1) {
-              switchImage(0);
-            }
-          };
-
-          reader.readAsDataURL(f);
-        }
-      });
-
-      // ================= IMAGE LIST =================
-      function renderImageList() {
-        let container = document.getElementById("imageList");
-        container.innerHTML = "";
-
-        images.forEach((src, i) => {
-          let imgEl = document.createElement("img");
-          imgEl.src = src;
-          imgEl.className = "thumb" + (i === currentIndex ? " active" : "");
-
-          imgEl.onclick = () => switchImage(i);
-
-          container.appendChild(imgEl);
-        });
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
       }
 
-      function switchImage(i) {
-        currentIndex = i;
-        img.src = images[i];
+      function getOrthoBounds() {
+        let left = parseFloat(leftInput.value);
+        let right = parseFloat(rightInput.value);
+        let bottom = parseFloat(bottomInput.value);
+        let top = parseFloat(topInput.value);
 
-        img.onload = () => {
-          resetView();
-          drawImage();
-        };
+        if (isNaN(left)) left = -250;
+        if (isNaN(right)) right = 250;
+        if (isNaN(bottom)) bottom = -350;
+        if (isNaN(top)) top = 350;
 
-        renderImageList();
+        if (left === right) right = left + 1;
+        if (bottom === top) top = bottom + 1;
+
+        return { left, right, bottom, top };
       }
 
-      // ================= DRAW =================
+      // ====================== DRAW ======================
       function drawImage() {
-        ctxBg.clearRect(0, 0, W, H);
+        ctxBg.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
 
-        if (img.complete) {
+        if (img && img.src) {
           ctxBg.save();
           ctxBg.translate(offsetX, offsetY);
           ctxBg.scale(scale, scale);
           ctxBg.drawImage(img, 0, 0);
           ctxBg.restore();
         }
+
+        updateStatus();
       }
 
       function drawPoints() {
-        ctx.clearRect(0, 0, W, H);
+        ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
-        ctx.fillStyle = "red";
+        if (points.length > 1) {
+          ctx.beginPath();
+          ctx.strokeStyle = "#2563eb";
+          ctx.lineWidth = 2;
+          ctx.moveTo(points[0].screenX, points[0].screenY);
+          for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].screenX, points[i].screenY);
+          }
+          ctx.stroke();
+        }
 
-        for (let p of points) {
+        ctx.fillStyle = "#ef4444";
+        ctx.font = "12px Inter";
+
+        for (let i = 0; i < points.length; i++) {
+          const p = points[i];
+
           ctx.beginPath();
           ctx.arc(p.screenX, p.screenY, 4, 0, Math.PI * 2);
           ctx.fill();
 
-          ctx.fillText(`(${p.x},${p.y})`, p.screenX + 5, p.screenY - 5);
+          ctx.fillText(`${i + 1}`, p.screenX - 3, p.screenY - 10);
+          ctx.fillText(`(${p.x}, ${p.y})`, p.screenX + 6, p.screenY - 6);
         }
+
+        updateStatus();
       }
 
-      // ================= OUTPUT =================
-      function updateOutput() {
-        let txt = "";
-        for (let p of points) {
-          txt += `glVertex2f(${p.x}, ${p.y});\n`;
-        }
-        output.value = txt;
+      function redraw() {
+        drawImage();
+        drawPoints();
       }
 
-      // ================= CONVERT =================
-      function convert(sx, sy) {
-        let imgX = (sx - offsetX) / scale;
-        let imgY = (sy - offsetY) / scale;
+      // ====================== CONVERT ======================
+      function convertToWorld(screenX, screenY) {
+        const { left, right, bottom, top } = getOrthoBounds();
 
+        // Lấy kích thước HIỂN THỊ THỰC TẾ của canvas
+        const rect = overlayCanvas.getBoundingClientRect();
+        const canvasDisplayWidth = rect.width;
+        const canvasDisplayHeight = rect.height;
+
+        const worldX = left + (screenX / canvasDisplayWidth) * (right - left);
+        const worldY = top - (screenY / canvasDisplayHeight) * (top - bottom);
+
+        // Chặn sai số nhỏ ở mép
         return {
-          x: Math.round(imgX - W / 2),
-          y: Math.round(H / 2 - imgY),
+          x: Math.round(
+            clamp(worldX, Math.min(left, right), Math.max(left, right)),
+          ),
+          y: Math.round(
+            clamp(worldY, Math.min(bottom, top), Math.max(bottom, top)),
+          ),
         };
       }
 
-      // ================= CLICK =================
-      overlay.addEventListener("click", (e) => {
-        const rect = overlay.getBoundingClientRect();
+      // ====================== OUTPUT ======================
+      function updateOutput() {
+        let text = "// Danh sách glVertex2f\n";
+        for (const p of points) {
+          text += `glVertex2f(${p.x}, ${p.y});\n`;
+        }
 
-        let sx = e.clientX - rect.left;
-        let sy = e.clientY - rect.top;
+        text += "\n// Danh sách object\n";
+        for (const p of points) {
+          text += `{ x: ${p.x}, y: ${p.y} }\n`;
+        }
 
-        let w = convert(sx, sy);
+        output.value = text;
+        updateStatus();
+      }
 
-        points.push({ screenX: sx, screenY: sy, x: w.x, y: w.y });
+      function copyOutput() {
+        output.select();
+        output.setSelectionRange(0, 99999);
+        document.execCommand("copy");
+        alert("Đã copy tọa độ.");
+      }
+
+      // ====================== POINT ACTIONS ======================
+      overlayCanvas.addEventListener("click", function (e) {
+        const rect = overlayCanvas.getBoundingClientRect();
+        const screenX = e.clientX - rect.left;
+        const screenY = e.clientY - rect.top;
+
+        const world = convertToWorld(screenX, screenY);
+
+        points.push({
+          screenX,
+          screenY,
+          x: world.x,
+          y: world.y,
+        });
 
         drawPoints();
         updateOutput();
       });
 
-      // ================= CONTROL =================
-      function applyManual() {
-        offsetX = parseFloat(oxInput.value) || 0;
-        offsetY = parseFloat(oyInput.value) || 0;
-        scale = parseFloat(scaleInput.value) || 1;
-
-        drawImage();
-        drawPoints();
-      }
-
-      function resetView() {
-        offsetX = 0;
-        offsetY = 0;
-        scale = 1;
-
-        oxInput.value = 0;
-        oyInput.value = 0;
-        scaleInput.value = 1;
-
-        drawImage();
-        drawPoints();
-      }
-
-      // ================= BUTTON =================
       function undo() {
-        points.pop();
-        drawPoints();
-        updateOutput();
+        if (points.length > 0) {
+          points.pop();
+          drawPoints();
+          updateOutput();
+        }
       }
 
       function clearAll() {
@@ -316,11 +482,99 @@
         updateOutput();
       }
 
-      function copy() {
-        output.select();
-        document.execCommand("copy");
-        alert("Copied!");
+      // ====================== VIEW ACTIONS ======================
+      function syncInputs() {
+        oxInput.value = offsetX;
+        oyInput.value = offsetY;
+        scaleInput.value = Number(scale).toFixed(2);
       }
+
+      function updateStatus() {
+        document.getElementById("oxText").textContent = offsetX;
+        document.getElementById("oyText").textContent = offsetY;
+        document.getElementById("scaleText").textContent =
+          Number(scale).toFixed(2);
+        document.getElementById("pointCount").textContent = points.length;
+      }
+
+      function applyManual() {
+        offsetX = parseFloat(oxInput.value) || 0;
+        offsetY = parseFloat(oyInput.value) || 0;
+
+        const newScale = parseFloat(scaleInput.value);
+        scale = newScale > 0 ? newScale : 1;
+
+        syncInputs();
+        redraw();
+      }
+
+      function resetView() {
+        offsetX = 0;
+        offsetY = 0;
+        scale = 1;
+        syncInputs();
+        redraw();
+      }
+
+      function move(dx, dy) {
+        const step = parseFloat(stepInput.value) || 20;
+        offsetX += dx * step;
+        offsetY += dy * step;
+        syncInputs();
+        redraw();
+      }
+
+      // ====================== MULTI IMAGE ======================
+      fileInput.addEventListener("change", function (e) {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+
+        files.forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = function (ev) {
+            images.push({
+              name: file.name,
+              src: ev.target.result,
+            });
+            renderImageList();
+
+            if (currentIndex === -1) {
+              switchImage(0);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+
+      function renderImageList() {
+        imageList.innerHTML = "";
+
+        images.forEach((item, i) => {
+          const imgEl = document.createElement("img");
+          imgEl.src = item.src;
+          imgEl.title = item.name;
+          imgEl.className = "thumb" + (i === currentIndex ? " active" : "");
+          imgEl.onclick = () => switchImage(i);
+          imageList.appendChild(imgEl);
+        });
+      }
+
+      function switchImage(index) {
+        if (index < 0 || index >= images.length) return;
+
+        currentIndex = index;
+        img.onload = function () {
+          resetView();
+          renderImageList();
+        };
+        img.src = images[index].src;
+      }
+
+      // ====================== INIT ======================
+      syncInputs();
+      updateStatus();
+      updateOutput();
+      drawPoints();
     </script>
   </body>
 </html>
